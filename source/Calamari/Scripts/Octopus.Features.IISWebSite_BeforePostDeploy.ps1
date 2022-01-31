@@ -301,7 +301,7 @@ if ($deployAsVirtualDirectory)
 	if (!$lastSegment) {
 		Write-Host "`"$virtualPath`" does not exist. Creating Virtual Directory pointing to $fullPathToLastVirtualPathSegment ..."
 		Execute-WithRetry { 
-			New-Item $fullPathToLastVirtualPathSegment -type VirtualDirectory -physicalPath $physicalPath
+			New-Item $fullPathToLastVirtualPathSegment -type VirtualDirectory -Path $physicalPath
 		}
 	} else {
 		if ($lastSegment.ElementTagName -eq 'virtualDirectory') {
@@ -317,11 +317,11 @@ if ($deployAsVirtualDirectory)
 			
 			Write-Host "`"$virtualPath`" already exists in IIS and points to an unknown item which seems to be a directory. We will try to convert it to a Virtual Directory. If you used the Custom Installation Directory feature to target this path we recommend removing the Custom Installation Directory feature, instead allowing Octopus to unpack the files into the default location and update the Physical Path of the Virtual Directory on your behalf."
 			Execute-WithRetry { 
-				New-Item $fullPathToLastVirtualPathSegment -type VirtualDirectory -physicalPath $physicalPath
+				New-Item $fullPathToLastVirtualPathSegment -type VirtualDirectory -Path $physicalPath
 			}
 		}
 
-		Set-Path -virtualPath $fullPathToLastVirtualPathSegment -physicalPath $physicalPath
+		Set-Path -virtualPath $fullPathToLastVirtualPathSegment -Path $physicalPath
 	}
 
     popd	
@@ -359,7 +359,7 @@ if ($deployAsWebApplication)
 	if (!$lastSegment) {
 		Write-Host "`"$virtualPath`" does not exist. Creating Web Application pointing to $fullPathToLastVirtualPathSegment ..."
 		Execute-WithRetry { 
-			New-Item $fullPathToLastVirtualPathSegment -type Application -physicalPath $physicalPath
+			New-Item $fullPathToLastVirtualPathSegment -type Application -Path $physicalPath
 		}
 	} else {
 		if ($lastSegment.ElementTagName -eq 'application') {
@@ -375,12 +375,12 @@ if ($deployAsWebApplication)
 			
 			Write-Host "`"$virtualPath`" already exists in IIS and points to an unknown item which seems to be a directory. We will try to convert it to a Web Application. If you used the Custom Installation Directory feature to target this path we recommend removing the Custom Installation Directory feature, instead allowing Octopus to unpack the files into the default location and update the Physical Path of the Web Application on your behalf."
 			Execute-WithRetry { 
-				New-Item $fullPathToLastVirtualPathSegment -type Application -physicalPath $physicalPath
+				New-Item $fullPathToLastVirtualPathSegment -type Application -Path $physicalPath
 			}
 
 		}
 
-		Set-Path -virtualPath $fullPathToLastVirtualPathSegment -physicalPath $physicalPath
+		Set-Path -virtualPath $fullPathToLastVirtualPathSegment -Path $physicalPath
 	}
 
 	Assign-ToApplicationPool -iisPath $fullPathToLastVirtualPathSegment -applicationPoolName $applicationPoolName					
@@ -593,7 +593,7 @@ if ($deployAsWebSite)
 		if (!$site) { 
 			Write-Host "Site `"$webSiteName`" does not exist, creating..." 
 			$id = (dir iis:\sites | foreach {$_.id} | sort -Descending | select -first 1) + 1
-			new-item $sitePath -bindings @{protocol="http";bindingInformation=$odTempBinding} -id $id -physicalPath $webRoot -confirm:$false
+			new-item $sitePath -bindings @{protocol="http";bindingInformation=$odTempBinding} -id $id -Path $webRoot -confirm:$false
 		} else {
 			Write-Host "Site `"$webSiteName`" already exists"
 		}
@@ -611,7 +611,7 @@ if ($deployAsWebSite)
 	}
 
 	Assign-ToApplicationPool -iisPath $sitePath -applicationPoolName $applicationPoolName
-	Set-Path -virtualPath $sitePath -physicalPath $webRoot
+	Set-Path -virtualPath $sitePath -Path $webRoot
 
 	function Convert-ToHashTable($bindingArray) {
 		$hash = @{}
